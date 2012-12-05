@@ -35,7 +35,7 @@ def move_issue(issue_key,to_transition_name=None,interactive=False):
 
 def comment_issue(issue_key,comment):
 	issue = jira.issue(issue_key)
-	issue.add_comment(comment)
+	jira.add_comment(issue,comment)
 
 def print_transitions(issue):
 	transitions = jira.transitions(issue)
