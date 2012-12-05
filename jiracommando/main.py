@@ -55,14 +55,14 @@ def action_browse():
 	url = '%s/browse/%s' % (d['server'],args[1])
 	webbrowser.open(url)
 
-def action_list():
+def action_list(args):
 	if len(args)>1:
 		statuses = [args[1]]
 	else:
 		statuses=['In Definition','Dev Ready','Dev']
 	print_assigned_issues(statuses);
 
-def action_move():
+def action_move(args):
 	if len(args) < 2:
 		print 'usage: %s mv JIRA-1234' % os.path.basename(sys.argv[0])
 		exit(0)
@@ -71,7 +71,7 @@ def action_move():
 	else:
 		move_issue(args[1],args[2])
 
-def action_comment():
+def action_comment(args):
 	if len(args) < 2:
 		print 'usage: %s cm JIRA-1234 "my comment"' % os.path.basename(sys.argv[0])
 		exit(0)
@@ -79,53 +79,58 @@ def action_comment():
 
 actions = {('list','ls'):action_list,('browse','br'):action_browse,('comment','cm'):action_comment,('move','mv'):action_move}
 
-usage = "usage: %prog [options] [list|move|comment|browse] [arguments]"
-parser = OptionParser(usage)
-parser.add_option("-r", "--reset-settings", dest="reset_settings",action="store_true",help="Clear username and server")
+def main():
+	global jira
+	usage = "usage: %prog [options] [list|move|comment|browse] [arguments]"
+	parser = OptionParser(usage)
+	parser.add_option("-r", "--reset-settings", dest="reset_settings",action="store_true",help="Clear username and server")
 
-(options, args) = parser.parse_args()
+	(options, args) = parser.parse_args()
 
-d = shelve.open(os.path.expanduser("~")+"/.jira")
+	d = shelve.open(os.path.expanduser("~")+"/.jira")
 
-if options.reset_settings:
-	del d['server']
-	del d['user']
-	d.sync()
+	if options.reset_settings:
+		del d['server']
+		del d['user']
+		d.sync()
 
-if len(args) == 0:
-	parser.print_help()
-	exit(1)
-
-action_name = args[0]
-action = None
-for names,value in actions.iteritems():
-	if action_name in names:
-		action = value
-		break
-
-if not action:
-	print "Unknown action: " + action_name
-	options.print_help()
-	exit(1)
-
-jira = None
-if d.has_key('server') and d.has_key('user'):
-	password = keyring.get_password(d['server'],d['user'])
-	if password:
-		jira = JIRA({'server':d['server']},basic_auth=(d['user'], password))
-
-if not jira:
-	if not d.has_key('server'):
-		d['server'] = raw_input("Server: ")
-	if not d.has_key('user'):
-		d['user'] = raw_input("User: ")
-	password = getpass()
-	d.sync()
-	jira = JIRA({'server':d['server']},basic_auth=(d['user'], password))
-	if jira:
-		keyring.set_password(d['server'],d['user'],password)
-	else:
+	if len(args) == 0:
+		parser.print_help()
 		exit(1)
 
-action();
+	action_name = args[0]
+	action = None
+	for names,value in actions.iteritems():
+		if action_name in names:
+			action = value
+			break
+
+	if not action:
+		print "Unknown action: " + action_name
+		options.print_help()
+		exit(1)
+
+	jira = None
+	if d.has_key('server') and d.has_key('user'):
+		password = keyring.get_password(d['server'],d['user'])
+		if password:
+			jira = JIRA({'server':d['server']},basic_auth=(d['user'], password))
+
+	if not jira:
+		if not d.has_key('server'):
+			d['server'] = raw_input("Server: ")
+		if not d.has_key('user'):
+			d['user'] = raw_input("User: ")
+		password = getpass()
+		d.sync()
+		jira = JIRA({'server':d['server']},basic_auth=(d['user'], password))
+		if jira:
+			keyring.set_password(d['server'],d['user'],password)
+		else:
+			exit(1)
+
+	action(args);
+
+if __name__ == "__main__":
+	main()
 
