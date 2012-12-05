@@ -6,14 +6,16 @@ A command line utility for Jira.
 Installation
 =============
 
-sudo easy_install https://github.com/joshrl/Jira-Commando/tarball/master
+```shell
+% sudo easy_install https://github.com/joshrl/Jira-Commando/tarball/master
+```
 
 Tested on OSX, probably works on UNIX variants, good luck on Windows.
 
 Usage
 =============
 
-The first time you run the jira command it will ask for a server, user, and password.
+The first time you run the jira command it will ask for a server, user, and password. The username and server are stored in your home directory in a file called ~/.jira. The password is stored in your keychain associated with the server you set. 
 
 See your cards with a status of "Dev":
 

@@ -77,40 +77,9 @@ def action_comment(args):
 		exit(0)
 	comment_issue(args[1],args[2])
 
-actions = {('list','ls'):action_list,('browse','br'):action_browse,('comment','cm'):action_comment,('move','mv'):action_move}
+def setup_jira():
+	global jira,d
 
-def main():
-	global jira
-	usage = "usage: %prog [options] [list|move|comment|browse] [arguments]"
-	parser = OptionParser(usage)
-	parser.add_option("-r", "--reset-settings", dest="reset_settings",action="store_true",help="Clear username and server")
-
-	(options, args) = parser.parse_args()
-
-	d = shelve.open(os.path.expanduser("~")+"/.jira")
-
-	if options.reset_settings:
-		del d['server']
-		del d['user']
-		d.sync()
-
-	if len(args) == 0:
-		parser.print_help()
-		exit(1)
-
-	action_name = args[0]
-	action = None
-	for names,value in actions.iteritems():
-		if action_name in names:
-			action = value
-			break
-
-	if not action:
-		print "Unknown action: " + action_name
-		options.print_help()
-		exit(1)
-
-	jira = None
 	if d.has_key('server') and d.has_key('user'):
 		password = keyring.get_password(d['server'],d['user'])
 		if password:
@@ -126,10 +95,50 @@ def main():
 		jira = JIRA({'server':d['server']},basic_auth=(d['user'], password))
 		if jira:
 			keyring.set_password(d['server'],d['user'],password)
-		else:
-			exit(1)
 
-	action(args);
+actions = {('list','ls'):action_list,('browse','br'):action_browse,('comment','cm'):action_comment,('move','mv'):action_move}
+
+def main():
+	global jira,d
+	jira = None
+	usage = "usage: %prog [options] [list|move|comment|browse] [arguments]"
+	parser = OptionParser(usage)
+	parser.add_option("-r", "--reset-settings", dest="reset_settings",action="store_true",help="Clear username and server")
+
+	(options, args) = parser.parse_args()
+
+	d = shelve.open(os.path.expanduser("~")+"/.jira")
+
+	if options.reset_settings:
+		if d.has_key('server'):
+			del d['server']
+		if d.has_key('user'):
+			del d['user']
+		d.sync()
+
+	if len(args) == 0:
+		if not d.has_key('server'):
+			setup_jira()
+		else:
+			parser.print_help()
+		exit(1)
+
+	action_name = args[0]
+	action = None
+	for names,value in actions.iteritems():
+		if action_name in names:
+			action = value
+			break
+
+	if not action:
+		print "Unknown action: " + action_name
+		options.print_help()
+		exit(1)
+
+	setup_jira()
+	if jira:
+		action(args)
+	d.close()
 
 if __name__ == "__main__":
 	main()
