@@ -48,7 +48,7 @@ def print_assigned_issues(statuses):
 	for issue in issues:
 		print "%s(%s) %s" % (issue.key,issue.fields.status.name,issue.fields.summary)
 
-def action_browse():
+def action_browse(args):
 	if len(args) < 1:
 		print 'usage: %s br[owse] JIRA-1234' % os.path.basename(sys.argv[0])
 		exit(0)

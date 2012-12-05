@@ -29,6 +29,12 @@ Add a comment to a card
 % jira cm JIRA-123 "Hello"
 ```
 
+Open a jira card in your default browser
+
+```shell
+% jira br JIRA-123 
+```
+
 Add a git fix version comment to a card
 
 ```shell
