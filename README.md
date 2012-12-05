@@ -15,7 +15,7 @@ Tested on OSX, probably works on UNIX variants, good luck on Windows.
 Usage
 =============
 
-The first time you run the jira command it will ask for a server, user, and password. The username and server are stored in your home directory in a file called ~/.jira. The password is stored in your keychain associated with the server you set. 
+The first time you run the jira command it will ask for a server, user, and password. The username and server are stored in your home directory in the file ~/.jira.db The password is stored in your keychain associated with the server you set. 
 
 See your cards with a status of "Dev":
 
@@ -39,13 +39,6 @@ Move a card to "QA Ready"
 
 ```shell
 % jira mv JIRA-123 "QA Ready"
-0) Dev Ready
-1) QA Ready
-2) QA
-3) Deploy Ready
-4) Done
-5) In Definition
-Enter number: 1
 ```
 
 Move a card to interactively
