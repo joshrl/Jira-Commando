@@ -50,7 +50,7 @@ Move a card to "QA Ready"
 Move a card to interactively
 
 ```shell
-% jira mv JIRA-123 "QA Ready"
+% jira mv JIRA-123
 0) Dev Ready
 1) QA Ready
 2) QA
